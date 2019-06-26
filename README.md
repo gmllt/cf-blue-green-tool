@@ -1,3 +1,5 @@
+# NOT USABLE RIGHT NOW WORK IN PROGRESS
+
 # cf blue-green-tool
 
 **A simple Blue/Green deployment tool based on manifest**
