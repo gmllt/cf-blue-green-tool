@@ -1,19 +1,23 @@
 package main
 
 import (
-	"code.cloudfoundry.org/cli/plugin"
 	"fmt"
 	"log"
 	"os"
+
+	"code.cloudfoundry.org/cli/plugin"
 )
 
-var PluginVersion string
+// Plugin Version
+var PluginVersion = "0.0.1"
 
+// CfPlugin structure
 type CfPlugin struct {
 	Connection plugin.CliConnection
 	Deploy     BlueGreenDeploy
 }
 
+// Run : Run plugin
 func (p *CfPlugin) Run(cliConnection plugin.CliConnection, args []string) {
 	if len(args) > 0 && args[0] == "CLI-MESSAGE-UNINSTALL" {
 		return
@@ -52,6 +56,7 @@ func (p *CfPlugin) Run(cliConnection plugin.CliConnection, args []string) {
 	}
 }
 
+// GetMetadata : return plugin metadata
 func (p *CfPlugin) GetMetadata() plugin.PluginMetadata {
 	var major, minor, build int
 	fmt.Sscanf(PluginVersion, "%d.%d.%d", &major, &minor, &build)
@@ -80,15 +85,21 @@ func (p *CfPlugin) GetMetadata() plugin.PluginMetadata {
 	}
 }
 
-func (p *CfPlugin) RunDeploy(arguments Arguments) () {
+// RunDeploy : deploy new app, bind it and remove old
+func (p *CfPlugin) RunDeploy(arguments Arguments) {
 	p.RunGreen(arguments)
 	p.RunApprove(arguments)
 }
 
+// RunGreen : deploy green app
 func (p *CfPlugin) RunGreen(arguments Arguments) {
 	var manifestParse ManifestParse
 	manifest, _ := manifestParse.parseFile(arguments.Manifest)
 	newManifest, _ := manifestParse.parseFile(arguments.Manifest)
+	newManifest.SuffixApp("new")
+
+	// Delete existant new app
+	p.Deploy.RemoveOldApp(newManifest)
 
 	// Push new app
 	p.Deploy.pushNewApp(newManifest)
@@ -97,6 +108,7 @@ func (p *CfPlugin) RunGreen(arguments Arguments) {
 	p.Deploy.MapNewApp(newManifest, manifest)
 }
 
+// RunRollback : rollback to blue app
 func (p *CfPlugin) RunRollback(arguments Arguments) {
 	var manifestParse ManifestParse
 	newManifest, _ := manifestParse.parseFile(arguments.Manifest)
@@ -107,6 +119,7 @@ func (p *CfPlugin) RunRollback(arguments Arguments) {
 
 }
 
+// RunApprove : approve green and promote
 func (p *CfPlugin) RunApprove(arguments Arguments) {
 	var manifestParse ManifestParse
 	manifest, _ := manifestParse.parseFile(arguments.Manifest)
@@ -119,6 +132,7 @@ func (p *CfPlugin) RunApprove(arguments Arguments) {
 	p.Deploy.UnMapNewRoute(newManifest)
 
 	// Rename old app
+	p.Deploy.RemoveOldApp(oldManifest)
 	p.Deploy.RenameApp(oldManifest, manifest)
 
 	p.Deploy.MapOldApp(oldManifest)

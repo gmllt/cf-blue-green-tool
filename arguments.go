@@ -4,12 +4,14 @@ import (
 	"flag"
 )
 
+// Arguments
 type Arguments struct {
-	Action string
+	Action        string
 	DeleteOldApps bool
-	Manifest string
+	Manifest      string
 }
 
+// NewArgs : Get arguments
 func NewArgs(osArgs []string) Arguments {
 	args := Arguments{}
 	args.Action = extractAction(osArgs)
@@ -25,6 +27,7 @@ func NewArgs(osArgs []string) Arguments {
 	return args
 }
 
+// indexOfAction : Get index of param action
 func indexOfAction(osArgs []string) int {
 	index := 0
 	for i, arg := range osArgs {
@@ -39,6 +42,7 @@ func indexOfAction(osArgs []string) int {
 	return -1
 }
 
+// extractAction : extract param action
 func extractAction(osArgs []string) string {
 	// Assume an app name will be passed - issue #27
 	index := indexOfAction(osArgs)
@@ -48,6 +52,7 @@ func extractAction(osArgs []string) string {
 	return ""
 }
 
+// extractArgs : extract arguments
 func extractArgs(osArgs []string) []string {
 	index := indexOfAction(osArgs)
 	if index >= 0 && len(osArgs) > index+1 {
