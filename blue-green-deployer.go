@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"os"
+	"path/filepath"
 
 	"code.cloudfoundry.org/cli/plugin"
 )
@@ -20,13 +21,14 @@ func (p *BlueGreenDeploy) Setup(connection plugin.CliConnection) {
 }
 
 // pushNewApp : push new app
-func (p *BlueGreenDeploy) pushNewApp(manifest Manifest) {
-	var manifestFilePath = "manifest-new.yml"
+func (p *BlueGreenDeploy) pushNewApp(manifest Manifest, manifestFile string) {
+	var DirPath = filepath.Dir(manifestFile)
+	var manifestFilePath = DirPath + "/manifest-new.yml"
 	_ = manifest.GenerateFile(manifestFilePath)
+	//fmt.Println("cf push -f " + manifestFilePath)
 	if _, err := p.Connection.CliCommand("push", "-f", manifestFilePath); err != nil {
 		p.ErrorFunc("Could not push new app.", err)
 	}
-	//fmt.Println("cf push -f " + manifestFilePath)
 	_ = os.Remove(manifestFilePath)
 }
 

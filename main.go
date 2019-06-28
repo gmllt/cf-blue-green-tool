@@ -102,7 +102,7 @@ func (p *CfPlugin) RunGreen(arguments Arguments) {
 	p.Deploy.RemoveOldApp(newManifest)
 
 	// Push new app
-	p.Deploy.pushNewApp(newManifest)
+	p.Deploy.pushNewApp(newManifest, arguments.Manifest)
 
 	// Map new app
 	p.Deploy.MapNewApp(newManifest, manifest)
