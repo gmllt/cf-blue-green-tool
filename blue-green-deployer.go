@@ -51,6 +51,16 @@ func (p *BlueGreenDeploy) MapRoute(AppName string, Host string, Domain string) {
 
 }
 
+// CheckApp : check if an app exist
+func (p *BlueGreenDeploy) CheckApps(manifest Manifest) bool {
+	for _, App := range manifest.Applications {
+		if _, err := p.Connection.CliCommand("app", App.Name); err != nil {
+			return false
+		}
+	}
+	return true
+}
+
 // MapDomain : map domain to app
 func (p *BlueGreenDeploy) MapDomain(AppName string, Domain string) {
 	//fmt.Println("cf map-route " + AppName + " " + Domain)

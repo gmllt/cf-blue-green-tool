@@ -132,16 +132,18 @@ func (p *CfPlugin) RunApprove(arguments Arguments) {
 	p.Deploy.UnMapNewRoute(newManifest)
 
 	// Rename old app
-	p.Deploy.RemoveOldApp(oldManifest)
-	p.Deploy.RenameApp(oldManifest, manifest)
+	if p.Deploy.CheckApps(manifest) {
+		p.Deploy.RemoveOldApp(oldManifest)
+		p.Deploy.RenameApp(oldManifest, manifest)
 
-	p.Deploy.MapOldApp(oldManifest)
+		p.Deploy.MapOldApp(oldManifest)
 
-	p.Deploy.UnMapOldApp(oldManifest, manifest)
+		p.Deploy.UnMapOldApp(oldManifest, manifest)
+	}
 
 	p.Deploy.RenameApp(manifest, newManifest)
 
-	if arguments.DeleteOldApps {
+	if arguments.DeleteOldApps && p.Deploy.CheckApps(oldManifest) {
 		p.Deploy.RemoveOldRoute(oldManifest)
 		p.Deploy.RemoveOldApp(oldManifest)
 	}
