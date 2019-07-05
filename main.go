@@ -9,7 +9,7 @@ import (
 )
 
 // Plugin Version
-var PluginVersion = "0.0.1"
+var PluginVersion = "1.0.0"
 
 // CfPlugin structure
 type CfPlugin struct {
